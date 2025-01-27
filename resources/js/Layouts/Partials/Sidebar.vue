@@ -52,7 +52,7 @@ watchEffect(() => {
         <!-- Menu -->
         <nav v-if="sidebarStore.showingSidebar" class="mt-6 px-4 space-y-2">
             <!-- Seção de Usuários Normais -->
-            <h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase">User</h3>
+            <!-- <h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase">User</h3> -->
             <Link :href="route('dashboard')"
                 :class="route().current('dashboard') ? 'bg-oficial text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-white'"
                 class="flex items-center px-4 py-2 rounded-lg transition-colors">
@@ -89,13 +89,13 @@ watchEffect(() => {
                 </div>
             </div>
 
-            <!-- Divisória -->
-            <hr class="my-6 border-gray-300 dark:border-gray-600" />
+            <div v-if="$page.props.auth.user.role == 1">
+                <!-- Divisória -->
+                <hr class="my-6 border-gray-300 dark:border-gray-600" />
 
-            <!-- Seção de Administradores -->
-            <div>
+                <!-- Seção de Administradores -->
                 <h3 class="text-sm pt-2 font-semibold text-gray-500 dark:text-gray-400 uppercase">Admin</h3>
-                <div v-if="$page.props.jetstream.canCreateTeams">
+                <div>
                     <button @click="sidebarStore.isTeamsDropdownOpen = !sidebarStore.isTeamsDropdownOpen"
                         class="flex items-center w-full px-4 py-2 text-gray-700 dark:text-gray-200 rounded-lg transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-white">
                         <UserGroupIcon class="w-6 h-6 me-3" />
@@ -118,7 +118,7 @@ watchEffect(() => {
 
                 </div>
 
-                <div v-if="$page.props.auth.user.isAdmin">
+                <div>
                     <button
                         @click="sidebarStore.isUserManagementDropdownOpen = !sidebarStore.isUserManagementDropdownOpen"
                         class="flex items-center w-full px-4 py-2 text-gray-700 dark:text-gray-200 rounded-lg transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-white">
