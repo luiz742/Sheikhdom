@@ -93,59 +93,62 @@ watchEffect(() => {
             <hr class="my-6 border-gray-300 dark:border-gray-600" />
 
             <!-- Seção de Administradores -->
-            <h3 class="text-sm pt-2 font-semibold text-gray-500 dark:text-gray-400 uppercase">Admin</h3>
-            <div v-if="$page.props.jetstream.canCreateTeams">
-                <button @click="sidebarStore.isTeamsDropdownOpen = !sidebarStore.isTeamsDropdownOpen"
-                    class="flex items-center w-full px-4 py-2 text-gray-700 dark:text-gray-200 rounded-lg transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-white">
-                    <UserGroupIcon class="w-6 h-6 me-3" />
-                    Teams
-                    <ChevronDownIcon class="w-4 h-4 ms-auto transform transition-transform"
-                        :class="sidebarStore.isTeamsDropdownOpen ? 'rotate-180' : ''" />
-                </button>
-                <div v-if="sidebarStore.isTeamsDropdownOpen" class="mt-2 space-y-1 ps-6">
-                    <Link :href="route('teams.show', currentTeam?.id)"
-                        :class="route().current('teams.show') ? 'bg-oficial text-white' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-white'"
-                        class="block px-4 py-2 rounded-lg">
-                    Team Settings
-                    </Link>
-                    <Link :href="route('teams.create')"
-                        :class="route().current('teams.create') ? 'bg-oficial text-white' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-white'"
-                        class="block px-4 py-2 rounded-lg">
-                    Create New Team
-                    </Link>
-                </div>
-
-            </div>
-
             <div>
-                <button @click="sidebarStore.isUserManagementDropdownOpen = !sidebarStore.isUserManagementDropdownOpen"
-                    class="flex items-center w-full px-4 py-2 text-gray-700 dark:text-gray-200 rounded-lg transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-white">
-                    <UsersIcon class="w-6 h-6 me-3" />
-                    User Management
-                    <ChevronDownIcon class="w-4 h-4 ms-auto transform transition-transform"
-                        :class="sidebarStore.isUserManagementDropdownOpen ? 'rotate-180' : ''" />
-                </button>
-                <div v-if="sidebarStore.isUserManagementDropdownOpen" class="mt-2 space-y-1 ps-6">
-                    <Link :href="route('admin.users.index')"
-                        :class="route().current('admin.users.index') ? 'bg-oficial text-white' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-white'"
-                        class="block px-4 py-2 rounded-lg">
-                    All Users
-                    </Link>
-                    <Link :href="route('admin.users.edit', { user: $page.props.auth.user.id })"
-                        :class="route().current('admin.users.edit') ? 'bg-oficial text-white' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-white'"
-                        class="block px-4 py-2 rounded-lg">
-                    Edit User
-                    </Link>
-                </div>
-            </div>
-            <Link :href="route('categories.index')"
-                :class="route().current('categories.index') ? 'bg-oficial text-white' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-white'"
-                class="flex items-center px-4 py-2 rounded-lg transition-colors">
-            <FolderIcon class="w-6 h-6 me-3" />
-            Categories
-            </Link>
+                <h3 class="text-sm pt-2 font-semibold text-gray-500 dark:text-gray-400 uppercase">Admin</h3>
+                <div v-if="$page.props.jetstream.canCreateTeams">
+                    <button @click="sidebarStore.isTeamsDropdownOpen = !sidebarStore.isTeamsDropdownOpen"
+                        class="flex items-center w-full px-4 py-2 text-gray-700 dark:text-gray-200 rounded-lg transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-white">
+                        <UserGroupIcon class="w-6 h-6 me-3" />
+                        Teams
+                        <ChevronDownIcon class="w-4 h-4 ms-auto transform transition-transform"
+                            :class="sidebarStore.isTeamsDropdownOpen ? 'rotate-180' : ''" />
+                    </button>
+                    <div v-if="sidebarStore.isTeamsDropdownOpen" class="mt-2 space-y-1 ps-6">
+                        <Link :href="route('teams.show', currentTeam?.id)"
+                            :class="route().current('teams.show') ? 'bg-oficial text-white' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-white'"
+                            class="block px-4 py-2 rounded-lg">
+                        Team Settings
+                        </Link>
+                        <Link :href="route('teams.create')"
+                            :class="route().current('teams.create') ? 'bg-oficial text-white' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-white'"
+                            class="block px-4 py-2 rounded-lg">
+                        Create New Team
+                        </Link>
+                    </div>
 
-            <Link :href="route('logout')" method="post" as="button"                
+                </div>
+
+                <div v-if="$page.props.auth.user.isAdmin">
+                    <button
+                        @click="sidebarStore.isUserManagementDropdownOpen = !sidebarStore.isUserManagementDropdownOpen"
+                        class="flex items-center w-full px-4 py-2 text-gray-700 dark:text-gray-200 rounded-lg transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-white">
+                        <UsersIcon class="w-6 h-6 me-3" />
+                        User Management
+                        <ChevronDownIcon class="w-4 h-4 ms-auto transform transition-transform"
+                            :class="sidebarStore.isUserManagementDropdownOpen ? 'rotate-180' : ''" />
+                    </button>
+                    <div v-if="sidebarStore.isUserManagementDropdownOpen" class="mt-2 space-y-1 ps-6">
+                        <Link :href="route('admin.users.index')"
+                            :class="route().current('admin.users.index') ? 'bg-oficial text-white' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-white'"
+                            class="block px-4 py-2 rounded-lg">
+                        All Users
+                        </Link>
+                        <Link :href="route('admin.users.edit', { user: $page.props.auth.user.id })"
+                            :class="route().current('admin.users.edit') ? 'bg-oficial text-white' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-white'"
+                            class="block px-4 py-2 rounded-lg">
+                        Edit User
+                        </Link>
+                    </div>
+                </div>
+                <Link :href="route('categories.index')"
+                    :class="route().current('categories.index') ? 'bg-oficial text-white' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-white'"
+                    class="flex items-center px-4 py-2 rounded-lg transition-colors">
+                <FolderIcon class="w-6 h-6 me-3" />
+                Categories
+                </Link>
+            </div>
+
+            <Link :href="route('logout')" method="post" as="button"
                 class="flex items-center px-4 py-2 rounded-lg transition-colors">
             Log Out
             </Link>
