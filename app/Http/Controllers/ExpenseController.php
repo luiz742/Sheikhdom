@@ -167,6 +167,24 @@ class ExpenseController extends Controller
         return redirect()->back()->with('success', 'Expense updated successfully.');
     }
 
+    public function show(Expense $expense)
+    {
+        $expense = Expense::findOrFail($expense->id);
+
+        return inertia('Expenses/Show', [
+            'expense' => $expense, // Somente a despesa será enviada.
+        ]);
+    }
+
+    public function markAsPaid(Expense $expense)
+    {
+        if ($expense->status !== 'paid') {
+            $expense->update(['status' => 'paid']);
+        }
+
+        return redirect()->back()->with('success', 'Expense marked as paid.');
+    }
+
 
     /**
      * Remove uma despesa.

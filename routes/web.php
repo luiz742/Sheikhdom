@@ -10,6 +10,7 @@ use App\Http\Controllers\CategoryController;
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('expenses', ExpenseController::class);
+    Route::post('/expenses/{expense}/mark-as-paid', [ExpenseController::class, 'markAsPaid'])->name('expenses.markAsPaid');
     Route::resource('categories', CategoryController::class);
     Route::get('/expensesa/analytics', [ExpenseController::class, 'analytics'])->name('expenses.analytics');
 
@@ -29,12 +30,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 });
 
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
+    return route('login');
 });
 
 Route::middleware([
