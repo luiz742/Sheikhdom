@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Expense;
+use App\Models\Team;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -43,6 +44,61 @@ class ExpenseController extends Controller
             'query' => ['monthYear' => $monthYear, 'search' => $request->search],
         ]);
     }
+
+    public function reports(Request $request)
+{
+    $teamId = Auth::user()->currentTeam->id;
+
+    // Filtros de mês/ano e título
+    $currentMonthYear = Carbon::now()->format('Y-m');
+    $monthYear = $request->input('monthYear', $currentMonthYear);
+
+    try {
+        $parsedDate = Carbon::createFromFormat('Y-m', $monthYear);
+        $year = $parsedDate->year;
+        $month = $parsedDate->month;
+    } catch (\Exception $e) {
+        return redirect()->back()->withErrors(['monthYear' => 'Invalid month and year format.']);
+    }
+
+    // Filtrar despesas por mês/ano e título
+    $query = Expense::query()->where('team_id', $teamId);
+    $query->whereYear('payment_date', $year)->whereMonth('payment_date', $month);
+
+    if ($request->input('search')) {
+        $query->where('title', 'LIKE', '%' . $request->input('search') . '%');
+    }
+
+    // Dados para os cards e a tabela
+    $expenses = $query->get();
+    $summary = [
+        'total' => $query->sum('amount'),
+        'paid' => (clone $query)->where('status', 'paid')->sum('amount'),
+        'pending' => (clone $query)->where('status', 'pending')->sum('amount'),
+        'overdue' => (clone $query)->where('status', 'overdue')->sum('amount'),
+    ];
+    
+    // Dados do gráfico (independentes do filtro de mês/ano)
+    $monthlyStats = Expense::select(
+        DB::raw("strftime('%Y-%m', payment_date) as month"),
+        DB::raw('SUM(amount) as total')
+    )
+        ->where('team_id', $teamId)
+        ->groupBy('month')
+        ->orderBy('month')
+        ->get();
+
+    return inertia('Expenses/Reports', [
+        'expenses' => $expenses,
+        'query' => [
+            'monthYear' => $monthYear,
+            'search' => $request->input('search', ''),
+        ],
+        'summary' => $summary,
+        'monthlyStats' => $monthlyStats,
+    ]);
+}
+
 
     /**
      * Exibe dados analíticos de despesas.
@@ -164,7 +220,7 @@ class ExpenseController extends Controller
             $expense->user->notify(new ExpenseOverdueNotification($expense));
         }
 
-        return redirect()->back()->with('success', 'Expense updated successfully.');
+        return redirect()->back()->banner('Expense updated successfully.');
     }
 
     public function show(Expense $expense)
@@ -175,16 +231,6 @@ class ExpenseController extends Controller
             'expense' => $expense, // Somente a despesa será enviada.
         ]);
     }
-
-    public function markAsPaid(Expense $expense)
-    {
-        if ($expense->status !== 'paid') {
-            $expense->update(['status' => 'paid']);
-        }
-
-        return redirect()->back()->with('success', 'Expense marked as paid.');
-    }
-
 
     /**
      * Remove uma despesa.
@@ -218,6 +264,22 @@ class ExpenseController extends Controller
             'notes' => 'nullable|string',
         ]);
     }
+
+
+    /**
+     * Marca uma despesa como paga.
+     */
+    public function markAsPaid(Expense $expense)
+    {
+        // Atualiza o status da despesa para "paid"
+        $expense->update([
+            'status' => 'paid',
+            'payment_date' => Carbon::now(), // Define a data de pagamento como hoje
+        ]);
+
+        return redirect()->back()->banner('Expense marked as paid successfully.');
+    }
+
 
     /**
      * Agenda a próxima despesa recorrente.

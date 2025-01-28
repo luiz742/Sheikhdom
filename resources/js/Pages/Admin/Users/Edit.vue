@@ -129,7 +129,7 @@ function submit() {
                         <div class="flex justify-end">
                             <button
                                 type="submit"
-                                class="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-md shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400"
+                                class="px-4 py-2 bg-ofical text-white font-semibold rounded-md shadow bg-oficial focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400"
                             >
                                 Save Changes
                             </button>

@@ -86,6 +86,11 @@ watchEffect(() => {
                         class="block px-4 py-2 rounded-lg">
                     Create Expense
                     </Link>
+                    <Link v-if="$page.props.auth.user.role == 1" :href="route('admin.reports.index')"
+                        :class="route().current('admin.reports.index') ? 'bg-oficial text-white' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-white'"
+                        class="block px-4 py-2 rounded-lg">
+                    Reports
+                    </Link>
                 </div>
             </div>
 

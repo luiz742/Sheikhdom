@@ -14,8 +14,9 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
      * Validate and update the given user's profile information.
      *
      * @param  array<string, mixed>  $input
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(User $user, array $input): void
+    public function update(User $user, array $input)
     {
         Validator::make($input, [
             'name' => ['required', 'string', 'max:255'],
@@ -36,6 +37,9 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
                 'email' => $input['email'],
             ])->save();
         }
+
+        // Retorna com redirecionamento e banner
+        return redirect()->back()->banner('Profile updated successfully.');
     }
 
     /**

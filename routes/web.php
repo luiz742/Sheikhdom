@@ -26,6 +26,8 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::put('/users/{user}/assign-role', [UserController::class, 'assignRole'])->name('users.assignRole');
         Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
         Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
+
+        Route::get('/reports', [ExpenseController::class, 'reports'])->name('reports.index');
     });
 });
 
