@@ -30,7 +30,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 });
 
 Route::get('/', function () {
-    return route('login');
+    return redirect()->route('login');
 });
 
 Route::middleware([
