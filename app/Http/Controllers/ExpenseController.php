@@ -46,58 +46,63 @@ class ExpenseController extends Controller
     }
 
     public function reports(Request $request)
-{
-    $teamId = Auth::user()->currentTeam->id;
+    {
+        $teamId = Auth::user()->currentTeam->id;
 
-    // Filtros de mês/ano e título
-    $currentMonthYear = Carbon::now()->format('Y-m');
-    $monthYear = $request->input('monthYear', $currentMonthYear);
+        // Filtros de mês/ano e título
+        $currentMonthYear = Carbon::now()->format('Y-m');
+        $monthYear = $request->input('monthYear', $currentMonthYear);
 
-    try {
-        $parsedDate = Carbon::createFromFormat('Y-m', $monthYear);
-        $year = $parsedDate->year;
-        $month = $parsedDate->month;
-    } catch (\Exception $e) {
-        return redirect()->back()->withErrors(['monthYear' => 'Invalid month and year format.']);
+        try {
+            $parsedDate = Carbon::createFromFormat('Y-m', $monthYear);
+            $year = $parsedDate->year;
+            $month = $parsedDate->month;
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['monthYear' => 'Invalid month and year format.']);
+        }
+
+        // Filtrar despesas por mês/ano e título
+        $query = Expense::query()->where('team_id', $teamId);
+        $query->whereYear('payment_date', $year)->whereMonth('payment_date', $month);
+
+        if ($request->input('search')) {
+            $query->where('title', 'LIKE', '%' . $request->input('search') . '%');
+        }
+
+        // Dados para os cards e a tabela
+        $expenses = $query->get();
+        $summary = [
+            'total' => $query->sum('amount'),
+            'paid' => (clone $query)->where('status', 'paid')->sum('amount'),
+            'pending' => (clone $query)->where('status', 'pending')->sum('amount'),
+            'overdue' => (clone $query)->where('status', 'overdue')->sum('amount'),
+        ];
+
+        // Dados do gráfico (independentes do filtro de mês/ano)
+        $monthlyStats = Expense::select(
+            DB::raw(
+                DB::getDriverName() === 'sqlite'
+                ? "strftime('%Y-%m', payment_date)"
+                : "DATE_FORMAT(payment_date, '%Y-%m')"
+            ) . " as month"
+            ,
+            DB::raw('SUM(amount) as total')
+        )
+            ->where('team_id', $teamId)
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get();
+
+        return inertia('Expenses/Reports', [
+            'expenses' => $expenses,
+            'query' => [
+                'monthYear' => $monthYear,
+                'search' => $request->input('search', ''),
+            ],
+            'summary' => $summary,
+            'monthlyStats' => $monthlyStats,
+        ]);
     }
-
-    // Filtrar despesas por mês/ano e título
-    $query = Expense::query()->where('team_id', $teamId);
-    $query->whereYear('payment_date', $year)->whereMonth('payment_date', $month);
-
-    if ($request->input('search')) {
-        $query->where('title', 'LIKE', '%' . $request->input('search') . '%');
-    }
-
-    // Dados para os cards e a tabela
-    $expenses = $query->get();
-    $summary = [
-        'total' => $query->sum('amount'),
-        'paid' => (clone $query)->where('status', 'paid')->sum('amount'),
-        'pending' => (clone $query)->where('status', 'pending')->sum('amount'),
-        'overdue' => (clone $query)->where('status', 'overdue')->sum('amount'),
-    ];
-    
-    // Dados do gráfico (independentes do filtro de mês/ano)
-    $monthlyStats = Expense::select(
-        DB::raw("strftime('%Y-%m', payment_date) as month"),
-        DB::raw('SUM(amount) as total')
-    )
-        ->where('team_id', $teamId)
-        ->groupBy('month')
-        ->orderBy('month')
-        ->get();
-
-    return inertia('Expenses/Reports', [
-        'expenses' => $expenses,
-        'query' => [
-            'monthYear' => $monthYear,
-            'search' => $request->input('search', ''),
-        ],
-        'summary' => $summary,
-        'monthlyStats' => $monthlyStats,
-    ]);
-}
 
 
     /**
@@ -116,7 +121,12 @@ class ExpenseController extends Controller
             ->get();
 
         $monthlyExpenses = Expense::select(
-            DB::raw("strftime('%m', payment_date) as month"),
+            DB::raw(
+                DB::getDriverName() === 'sqlite'
+                ? "strftime('%m', payment_date)"
+                : "DATE_FORMAT(payment_date, '%m')"
+            ) . " as month"
+            ,
             DB::raw('SUM(amount) as total')
         )
             ->where('team_id', $teamId)
