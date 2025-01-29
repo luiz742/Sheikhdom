@@ -82,16 +82,16 @@ class ExpenseController extends Controller
         $monthlyStats = Expense::select(
             DB::raw(
                 DB::getDriverName() === 'sqlite'
-                ? "strftime('%Y-%m', payment_date)"
-                : "DATE_FORMAT(payment_date, '%Y-%m')"
-            ) . " as month"
-            ,
+                ? "strftime('%Y-%m', payment_date) as month"
+                : "DATE_FORMAT(payment_date, '%Y-%m') as month"
+            ),
             DB::raw('SUM(amount) as total')
         )
             ->where('team_id', $teamId)
             ->groupBy('month')
             ->orderBy('month')
             ->get();
+
 
         return inertia('Expenses/Reports', [
             'expenses' => $expenses,
