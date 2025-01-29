@@ -59,7 +59,8 @@ const markAsPaid = () => {
                         <div>
                             <p class="text-sm text-gray-500 dark:text-gray-300">Amount</p>
                             <p class="text-lg font-semibold text-gray-800 dark:text-gray-100">
-                                ${{ expense.amount.toFixed(2) }}
+                                <!-- ${{ expense.amount.toFixed(2) }} -->
+                                 {{ expense.amount }}
                             </p>
                         </div>
                         <!-- Data de Pagamento -->
